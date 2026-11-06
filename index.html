@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BSM · Dos palabras bíblicas</title>
+<style>
+  :root{
+    --bg:#0f0f13;
+    --card:#1a1a22;
+    --accent:#ff3d6e;
+    --accent2:#3ddcff;
+    --text:#f2f2f7;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:2rem;
+    background:radial-gradient(circle at 20% 20%, #1f1f2b, var(--bg) 60%);
+    color:var(--text);
+    font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding:2rem;
+    text-align:center;
+  }
+  h1{font-size:clamp(1.6rem, 4vw, 2.6rem); letter-spacing:.05em; text-transform:uppercase;}
+  h1 span{color:var(--accent);}
+  .sub{opacity:.6; font-size:.95rem; margin-top:.4rem;}
+  .cards{
+    display:flex; flex-wrap:wrap; gap:1.5rem; justify-content:center;
+    width:100%; max-width:800px;
+  }
+  .card{
+    flex:1 1 280px;
+    min-height:200px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:.6rem;
+    padding:2rem 1.5rem;
+    background:var(--card);
+    border-radius:24px;
+    border:2px solid transparent;
+    transition:transform .25s ease, border-color .25s ease;
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute; inset:0;
+    background:linear-gradient(135deg, rgba(255,61,110,.15), rgba(61,220,255,.15));
+    opacity:0; transition:opacity .3s;
+  }
+  .card:hover::before{opacity:1;}
+  .card .palabra{
+    font-size:clamp(1.8rem, 5vw, 3rem);
+    font-weight:800;
+    text-transform:lowercase;
+    letter-spacing:.02em;
+  }
+  .card .ref{
+    font-size:.85rem;
+    opacity:.55;
+    font-style:italic;
+    transition:opacity .3s;
+  }
+  .card .ref.oculta{opacity:0;}
+  .card.pop{animation:pop .5s ease;}
+  @keyframes pop{
+    0%{transform:scale(.85); opacity:.3;}
+    60%{transform:scale(1.05);}
+    100%{transform:scale(1); opacity:1;}
+  }
+  .card:nth-child(1){border-color:var(--accent);}
+  .card:nth-child(2){border-color:var(--accent2);}
+  .acciones{display:flex; flex-wrap:wrap; gap:1rem; justify-content:center;}
+  button{
+    cursor:pointer;
+    font-size:1.05rem;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    padding:1rem 2.2rem;
+    border:none;
+    border-radius:999px;
+    color:#0f0f13;
+    background:linear-gradient(90deg, var(--accent), var(--accent2));
+    transition:transform .15s ease, box-shadow .15s ease;
+    box-shadow:0 8px 30px rgba(255,61,110,.35);
+  }
+  button.secundario{
+    background:transparent;
+    color:var(--text);
+    border:2px solid #ffffff33;
+    box-shadow:none;
+  }
+  button:hover{transform:translateY(-2px) scale(1.03);}
+  button:active{transform:scale(.97);}
+</style>
+</head>
+<body>
+
+  <header>
+    <h1>BSM <span>·</span> Dos palabras bíblicas</h1>
+    <p class="sub">Salen dos palabras al azar. El equipo se arregla para hablar de eso.</p>
+  </header>
+
+  <main class="cards">
+    <div class="card" id="card1"><span class="palabra">—</span><span class="ref oculta"></span></div>
+    <div class="card" id="card2"><span class="palabra">—</span><span class="ref oculta"></span></div>
+  </main>
+
+  <div class="acciones">
+    <button id="btn">Tirar palabras</button>
+    <button id="btnRef" class="secundario">Mostrar referencias</button>
+  </div>
+
+<script>
+  const PALABRAS = [
+    { p:"gracia",          r:"Efesios 2:8" },
+    { p:"fe",              r:"Hebreos 11:1" },
+    { p:"esperanza",       r:"Romanos 15:13" },
+    { p:"amor",            r:"1 Corintios 13:4" },
+    { p:"perdón",          r:"Mateo 6:14" },
+    { p:"misericordia",    r:"Lucas 6:36" },
+    { p:"pecado",          r:"Romanos 3:23" },
+    { p:"arrepentimiento", r:"Hechos 3:19" },
+    { p:"salvación",       r:"Juan 3:16" },
+    { p:"cruz",            r:"1 Corintios 1:18" },
+    { p:"resurrección",    r:"1 Corintios 15:4" },
+    { p:"idolatría",       r:"Éxodo 20:3" },
+    { p:"justicia",        r:"Miqueas 6:8" },
+    { p:"paz",             r:"Filipenses 4:7" },
+    { p:"gozo",            r:"Nehemías 8:10" },
+    { p:"temor",           r:"Proverbios 1:7" },
+    { p:"orgullo",         r:"Proverbios 16:18" },
+    { p:"humildad",        r:"1 Pedro 5:6" },
+    { p:"envidia",         r:"Proverbios 14:30" },
+    { p:"ira",             r:"Efesios 4:26" },
+    { p:"dinero",          r:"1 Timoteo 6:10" },
+    { p:"pobreza",         r:"Proverbios 19:17" },
+    { p:"riqueza",         r:"Mateo 6:19" },
+    { p:"trabajo",         r:"Colosenses 3:23" },
+    { p:"descanso",        r:"Génesis 2:2" },
+    { p:"familia",         r:"Josué 24:15" },
+    { p:"matrimonio",      r:"Efesios 5:25" },
+    { p:"hijos",           r:"Proverbios 22:6" },
+    { p:"amistad",         r:"Proverbios 17:17" },
+    { p:"soledad",         r:"Salmos 25:16" },
+    { p:"muerte",          r:"Romanos 6:23" },
+    { p:"vida",            r:"Juan 10:10" },
+    { p:"cielo",           r:"Apocalipsis 21:1" },
+    { p:"infierno",        r:"Mateo 10:28" },
+    { p:"juicio",          r:"Hebreos 9:27" },
+    { p:"oración",         r:"Mateo 6:6" },
+    { p:"ayuno",           r:"Mateo 6:16" },
+    { p:"adoración",       r:"Juan 4:24" },
+    { p:"iglesia",         r:"Mateo 16:18" },
+    { p:"bautismo",        r:"Mateo 28:19" },
+    { p:"espíritu",        r:"Juan 14:26" },
+    { p:"profecía",        r:"1 Corintios 14:1" },
+    { p:"milagro",         r:"Juan 2:11" },
+    { p:"ley",             r:"Romanos 7:12" },
+    { p:"libertad",        r:"Gálatas 5:1" },
+    { p:"verdad",          r:"Juan 8:32" },
+    { p:"mentira",         r:"Proverbios 12:22" },
+    { p:"sabiduría",       r:"Proverbios 4:7" },
+    { p:"necedad",         r:"Proverbios 26:11" },
+    { p:"tiempo",          r:"Eclesiastés 3:1" },
+    { p:"eternidad",       r:"Eclesiastés 3:11" },
+    { p:"poder",           r:"Hechos 1:8" },
+    { p:"debilidad",       r:"2 Corintios 12:9" },
+    { p:"sufrimiento",     r:"Romanos 5:3" },
+    { p:"sanidad",         r:"Isaías 53:5" },
+    { p:"guerra",          r:"Efesios 6:12" },
+    { p:"vergüenza",       r:"Romanos 10:11" },
+    { p:"honor",           r:"Proverbios 3:9" },
+    { p:"secreto",         r:"Deuteronomio 29:29" },
+    { p:"corazón",         r:"Proverbios 4:23" },
+    { p:"lengua",          r:"Santiago 3:5" },
+    { p:"ojos",            r:"Mateo 6:22" },
+    { p:"manos",           r:"Salmos 24:4" }
+  ];
+
+  const card1 = document.getElementById("card1");
+  const card2 = document.getElementById("card2");
+  const btn = document.getElementById("btn");
+  const btnRef = document.getElementById("btnRef");
+
+  let ultimas = [];
+  let refsVisibles = false;
+
+  function tirarPalabras(){
+    const copia = [...PALABRAS];
+    for(let i = copia.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [copia[i], copia[j]] = [copia[j], copia[i]];
+    }
+    let par = copia.slice(0, 2);
+
+    if(ultimas.length === 2 &&
+       par.some(x => x.p === ultimas[0].p) &&
+       par.some(x => x.p === ultimas[1].p)){
+      par = copia.slice(2, 4);
+    }
+    ultimas = par;
+
+    [card1, card2].forEach(c => c.classList.remove("pop"));
+    void card1.offsetWidth;
+
+    card1.querySelector(".palabra").textContent = par[0].p;
+    card1.querySelector(".ref").textContent = par[0].r;
+    card2.querySelector(".palabra").textContent = par[1].p;
+    card2.querySelector(".ref").textContent = par[1].r;
+
+    // Al tirar de nuevo, ocultamos referencias
+    refsVisibles = false;
+    btnRef.textContent = "Mostrar referencias";
+    card1.querySelector(".ref").classList.add("oculta");
+    card2.querySelector(".ref").classList.add("oculta");
+
+    card1.classList.add("pop");
+    card2.classList.add("pop");
+  }
+
+  btn.addEventListener("click", tirarPalabras);
+
+  btnRef.addEventListener("click", () => {
+    refsVisibles = !refsVisibles;
+    card1.querySelector(".ref").classList.toggle("oculta", !refsVisibles);
+    card2.querySelector(".ref").classList.toggle("oculta", !refsVisibles);
+    btnRef.textContent = refsVisibles ? "Ocultar referencias" : "Mostrar referencias";
+  });
+
+  tirarPalabras();
+</script>
+
+</body>
+</html>
